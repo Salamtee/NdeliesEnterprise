@@ -2,7 +2,7 @@
 // Automatically detects local environment vs. deployed Vercel production site.
 
 // Replace 'https://ndelies-backend.onrender.com/api' with your actual Render backend URL if different
-const PRODUCTION_BACKEND_URL = 'https://ndelies-backend.onrender.com/api';
+const PRODUCTION_BACKEND_URL = 'https://ndeliesenterprise.onrender.com/api';
 
 const isLocal =
   window.location.hostname === 'localhost' ||
