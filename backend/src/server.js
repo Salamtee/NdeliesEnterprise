@@ -81,9 +81,33 @@ const PORT = process.env.PORT || 5000;
 connectDB()
   .then(() => seedAdmin())
   .then(() => {
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+
+      // ── Keep-alive ping ──────────────────────────────────────────────────
+      // Render's free tier spins down after 15 min of inactivity.
+      // Ping our own /api/health every 14 min to stay awake.
+      const SELF_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+      const PING_INTERVAL_MS = 14 * 60 * 1000; // 14 minutes
+
+      if (process.env.NODE_ENV === 'production') {
+        setInterval(() => {
+          const url = `${SELF_URL}/api/health`;
+          const client = url.startsWith('https') ? require('https') : require('http');
+          client.get(url, (res) => {
+            console.log(`[keep-alive] ping → ${url} | status: ${res.statusCode}`);
+          }).on('error', (err) => {
+            console.warn(`[keep-alive] ping failed: ${err.message}`);
+          });
+        }, PING_INTERVAL_MS);
+
+        console.log(`[keep-alive] Self-ping scheduled every 14 min → ${SELF_URL}/api/health`);
+      }
+      // ─────────────────────────────────────────────────────────────────────
+    });
   })
   .catch(err => {
     console.error('Failed to start server:', err.message);
     process.exit(1);
   });
+
