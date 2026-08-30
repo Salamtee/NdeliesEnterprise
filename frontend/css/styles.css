@@ -595,6 +595,26 @@ input:focus, select:focus, textarea:focus {
     cursor: not-allowed;
 }
 
+/* Install App Button */
+.btn-install {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+    animation: installPulse 2s infinite;
+}
+
+.btn-install:hover {
+    background: linear-gradient(135deg, #219a52, #27ae60);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.5);
+}
+
+@keyframes installPulse {
+    0%, 100% { box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4); }
+    50%       { box-shadow: 0 4px 25px rgba(39, 174, 96, 0.75); }
+}
+
 /* Status Badges */
 .badge {
     display: inline-block;

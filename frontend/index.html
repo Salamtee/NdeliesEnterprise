@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>N'delie's Enterprise Management System</title>
 <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a2e4a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NdeliesEnt">
+<link rel="apple-touch-icon" href="assets/logo.jpg">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -20,9 +27,14 @@
         <h1>N'delie's Enterprise</h1>
         <p>Building Quality You Can Trust Since 2024</p>
         <p style="font-size: 14px; color: rgba(255,255,255,0.8);">26, Regent Road Hill Station | Tel: 076 670272 / 030 990039</p>
-        <button class="btn btn-secondary" onclick="goToLogin()">
-            <i class="fas fa-sign-in-alt"></i> Login to System
-        </button>
+        <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:8px;">
+            <button class="btn btn-secondary" onclick="goToLogin()">
+                <i class="fas fa-sign-in-alt"></i> Login to System
+            </button>
+            <button id="pwa-install-btn" class="btn btn-install" style="display:none;" onclick="installPWA()">
+                <i class="fas fa-download"></i> Install App
+            </button>
+        </div>
     </div>
 
     <div class="features-grid">
@@ -566,5 +578,45 @@
 </div>
 
 <script type="module" src="js/app.js"></script>
+
+<script>
+// ── PWA Install Prompt ───────────────────────────────────────────────────────
+let _deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  _deferredInstallPrompt = e;
+  const btn = document.getElementById('pwa-install-btn');
+  if (btn) btn.style.display = 'inline-flex';
+});
+
+window.installPWA = async function () {
+  if (!_deferredInstallPrompt) return;
+  _deferredInstallPrompt.prompt();
+  const { outcome } = await _deferredInstallPrompt.userChoice;
+  if (outcome === 'accepted') {
+    const btn = document.getElementById('pwa-install-btn');
+    if (btn) btn.style.display = 'none';
+  }
+  _deferredInstallPrompt = null;
+};
+
+// Hide button once app is installed
+window.addEventListener('appinstalled', () => {
+  const btn = document.getElementById('pwa-install-btn');
+  if (btn) btn.style.display = 'none';
+  _deferredInstallPrompt = null;
+});
+
+// ── Service Worker Registration ───────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('[SW] Registered:', reg.scope))
+      .catch(err => console.warn('[SW] Registration failed:', err));
+  });
+}
+</script>
 </body>
 </html>
+
