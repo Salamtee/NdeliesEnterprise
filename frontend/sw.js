@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ndelies-enterprise-v3';
+const CACHE_NAME = 'ndelies-enterprise-v4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
