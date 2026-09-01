@@ -20,7 +20,10 @@ export default async function apiFetch(path, options = {}) {
     // No JSON body - fine for some responses
   }
 
-  if (res.status === 401) {
+  // Only treat 401 as "session expired" for authenticated requests.
+  // During login itself, a 401 just means wrong credentials — don't
+  // kick the user back to the landing page.
+  if (res.status === 401 && !path.includes('/auth/login')) {
     clearSession();
     window.dispatchEvent(new CustomEvent('ndelies:session-expired'));
   }

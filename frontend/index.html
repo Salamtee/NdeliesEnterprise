@@ -583,28 +583,55 @@
 // ── PWA Install Prompt ───────────────────────────────────────────────────────
 let _deferredInstallPrompt = null;
 
+function _showInstallBtn() {
+  const btn = document.getElementById('pwa-install-btn');
+  if (btn) btn.style.display = 'inline-flex';
+}
+function _hideInstallBtn() {
+  const btn = document.getElementById('pwa-install-btn');
+  if (btn) btn.style.display = 'none';
+}
+
+// 1. Standard path: Chrome on Android, PC (Edge/Chrome) — captures the prompt
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   _deferredInstallPrompt = e;
-  const btn = document.getElementById('pwa-install-btn');
-  if (btn) btn.style.display = 'inline-flex';
+  _showInstallBtn();
 });
 
+// 2. If already running as installed PWA → hide button entirely
+if (window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true) {
+  _hideInstallBtn();
+}
+
+// 3. Button click handler
 window.installPWA = async function () {
-  if (!_deferredInstallPrompt) return;
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+  // iOS Safari: no beforeinstallprompt — show a manual guide instead
+  if (isIos && !_deferredInstallPrompt) {
+    alert("To install on iOS:\n\n1. Tap the Share button (square with arrow) at the bottom of Safari.\n2. Scroll down and tap 'Add to Home Screen'.\n3. Tap 'Add'.");
+    return;
+  }
+
+  if (!_deferredInstallPrompt) {
+    // Fallback: browser already showing install UI in address bar (desktop)
+    alert("Look for the install icon (⊕) in your browser's address bar to install this app.");
+    return;
+  }
+
   _deferredInstallPrompt.prompt();
   const { outcome } = await _deferredInstallPrompt.userChoice;
   if (outcome === 'accepted') {
-    const btn = document.getElementById('pwa-install-btn');
-    if (btn) btn.style.display = 'none';
+    _hideInstallBtn();
   }
   _deferredInstallPrompt = null;
 };
 
 // Hide button once app is installed
 window.addEventListener('appinstalled', () => {
-  const btn = document.getElementById('pwa-install-btn');
-  if (btn) btn.style.display = 'none';
+  _hideInstallBtn();
   _deferredInstallPrompt = null;
 });
 
