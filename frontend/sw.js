@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ndelies-enterprise-v1';
+const CACHE_NAME = 'ndelies-enterprise-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -19,6 +19,8 @@ const STATIC_ASSETS = [
   '/js/settings.js',
   '/assets/logo.jpg',
   '/assets/watermark.jpg',
+  '/assets/icon-192.png',
+  '/assets/icon-512.png',
   '/manifest.json'
 ];
 
