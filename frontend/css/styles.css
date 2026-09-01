@@ -912,12 +912,13 @@ input:focus, select:focus, textarea:focus {
 /* Sidebar overlay backdrop (mobile only) */
 .sidebar-overlay {
     display: none;
+    pointer-events: none;
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.5);
     z-index: 999;
 }
-.sidebar-overlay.active { display: block; }
+.sidebar-overlay.active { display: block; pointer-events: auto; }
 
 /* ── Tablet (≤ 900px) ─────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
@@ -954,9 +955,11 @@ input:focus, select:focus, textarea:focus {
         transition: transform 0.3s ease;
         z-index: 1000;
         box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+        pointer-events: none; /* CRITICAL: don't block touches when hidden */
     }
     .sidebar.open {
         transform: translateX(0);
+        pointer-events: auto; /* Allow interaction when sidebar is visible */
     }
 
     /* Main content fills full width */
