@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ndelies-enterprise-v2';
+const CACHE_NAME = 'ndelies-enterprise-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -24,7 +24,7 @@ const STATIC_ASSETS = [
   '/manifest.json'
 ];
 
-// Install: cache all static assets
+// Install: pre-cache all static assets
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
@@ -32,7 +32,7 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-// Activate: clean up old caches
+// Activate: immediately evict ALL old caches so stale CSS/JS is never served
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -42,25 +42,43 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Fetch: serve from cache, fall back to network (cache-first for static, network-first for API)
+// Fetch strategy:
+//   API calls  -> always network (never cached)
+//   Images     -> cache-first  (they rarely change)
+//   HTML/CSS/JS -> network-first so every deployment reaches users immediately
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // Always go to network for API calls
+  // Always go to network for API / backend calls
   if (url.pathname.startsWith('/api') || url.hostname.includes('onrender.com')) {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then(cached => {
-      return cached || fetch(event.request).then(response => {
-        // Cache successful GET responses for static assets
-        if (event.request.method === 'GET' && response.status === 200) {
+  const isImage = /\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(url.pathname);
+
+  if (isImage) {
+    // Cache-first for images
+    event.respondWith(
+      caches.match(event.request).then(cached => {
+        return cached || fetch(event.request).then(response => {
+          if (response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          }
+          return response;
+        });
+      }).catch(() => caches.match('/assets/logo.jpg'))
+    );
+  } else {
+    // Network-first for HTML / CSS / JS
+    event.respondWith(
+      fetch(event.request).then(response => {
+        if (response.status === 200) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
         }
         return response;
-      });
-    }).catch(() => caches.match('/index.html'))
-  );
+      }).catch(() => caches.match(event.request).then(c => c || caches.match('/index.html')))
+    );
+  }
 });

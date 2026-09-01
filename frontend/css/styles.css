@@ -644,6 +644,13 @@ input:focus, select:focus, textarea:focus {
     color: var(--danger);
 }
 
+/* Landing Page Wrapper */
+.landing-wrapper {
+    padding: 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
 /* Landing Page */
 .landing-hero {
     background: linear-gradient(135deg, var(--primary-color), #0f1d2e);
@@ -1022,6 +1029,7 @@ input:focus, select:focus, textarea:focus {
     .metric-value { font-size: 22px; }
 
     /* Landing */
+    .landing-wrapper { padding: 16px; }
     .landing-hero {
         padding: 40px 20px;
         border-radius: 6px;
