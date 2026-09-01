@@ -178,9 +178,15 @@
         </ul>
     </div>
 
+    <!-- Sidebar overlay (mobile tap-to-close) -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
     <!-- Main Content -->
     <div class="main-content">
         <div class="header">
+            <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
             <h1 id="page-title">Dashboard</h1>
             <div class="header-right">
                 <div class="notif-wrapper">
@@ -641,6 +647,33 @@ window.installPWA = async function () {
 window.addEventListener('appinstalled', function () {
   _hideInstallBtn();
   window._deferredInstallPrompt = null;
+});
+
+// ── Mobile Sidebar Toggle ─────────────────────────────────────────────────────
+function toggleSidebar() {
+  var sidebar = document.querySelector('.sidebar');
+  var overlay = document.getElementById('sidebar-overlay');
+  var isOpen  = sidebar.classList.contains('open');
+  if (isOpen) {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+  } else {
+    sidebar.classList.add('open');
+    overlay.classList.add('active');
+  }
+}
+function closeSidebar() {
+  document.querySelector('.sidebar').classList.remove('open');
+  var overlay = document.getElementById('sidebar-overlay');
+  if (overlay) overlay.classList.remove('active');
+}
+// Close sidebar automatically when a nav link is tapped on mobile
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.nav-link').forEach(function (link) {
+    link.addEventListener('click', function () {
+      if (window.innerWidth <= 768) closeSidebar();
+    });
+  });
 });
 
 // ── Service Worker Registration ───────────────────────────────────────────────

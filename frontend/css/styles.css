@@ -889,22 +889,208 @@ input:focus, select:focus, textarea:focus {
     color: var(--heading-text);
 }
 
-@media (max-width: 768px) {
-    .sidebar {
-        width: 200px;
-    }
+/* ── Hamburger toggle (hidden on desktop) ─────────────────────────────────── */
+.hamburger {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    flex-direction: column;
+    gap: 5px;
+    padding: 4px;
+    z-index: 1100;
+}
+.hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: var(--text-dark);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
 
+/* Sidebar overlay backdrop (mobile only) */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+}
+.sidebar-overlay.active { display: block; }
+
+/* ── Tablet (≤ 900px) ─────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .sidebar {
+        width: 220px;
+    }
     .main-content {
-        margin-left: 200px;
+        margin-left: 220px;
         padding: 20px;
     }
-
     .grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .landing-hero h1 {
+        font-size: 32px;
+    }
+    .header h1 {
+        font-size: 18px;
+    }
+    .notif-dropdown {
+        width: 300px;
+    }
+}
+
+/* ── Mobile (≤ 768px) — sidebar becomes a slide-in drawer ────────────────── */
+@media (max-width: 768px) {
+    /* Show hamburger */
+    .hamburger { display: flex; }
+
+    /* Sidebar: off-canvas by default, slides in when .open */
+    .sidebar {
+        width: 260px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+    }
+    .sidebar.open {
+        transform: translateX(0);
     }
 
-    .landing-hero h1 {
-        font-size: 28px;
+    /* Main content fills full width */
+    .main-content {
+        margin-left: 0;
+        padding: 16px;
+    }
+
+    /* Header */
+    .header {
+        padding: 14px 16px;
+        margin-bottom: 16px;
+        gap: 10px;
+        flex-wrap: nowrap;
+    }
+    .header h1 {
+        font-size: 16px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .header-right {
+        gap: 10px;
+        flex-shrink: 0;
+    }
+    /* Hide text labels next to user avatar on mobile */
+    .user-info span { display: none; }
+
+    /* Dashboard grid: single column */
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    /* Tables: horizontally scrollable */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    table {
+        min-width: 560px;
+    }
+    th, td {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    /* Cards */
+    .card { padding: 16px; }
+    .metric-value { font-size: 22px; }
+
+    /* Landing */
+    .landing-hero {
+        padding: 40px 20px;
+        border-radius: 6px;
+        margin-bottom: 24px;
+    }
+    .landing-hero img { width: 80px; height: 80px; }
+    .landing-hero h1 { font-size: 24px; }
+    .landing-hero p  { font-size: 14px; }
+    .features-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    /* Login box */
+    .login-box {
+        padding: 28px 20px;
+        margin: 16px;
+    }
+
+    /* Modals */
+    .modal-content {
+        padding: 20px;
+        width: 95%;
+        margin: 10px;
+        max-height: 92vh;
+    }
+
+    /* Report bars */
+    .chart-label { width: 70px; font-size: 11px; }
+    .chart-bar-fill { font-size: 11px; }
+
+    /* Staff actions: stack on very small */
+    .staff-actions { flex-wrap: wrap; }
+
+    /* Notification dropdown */
+    .notif-dropdown {
+        width: calc(100vw - 32px);
+        right: -16px;
+    }
+
+    /* Toasts */
+    .toast-container {
+        top: auto;
+        bottom: 16px;
+        right: 16px;
+        left: 16px;
+    }
+    .toast { max-width: 100%; }
+
+    /* Section padding */
+    .report-section { padding: 14px; }
+}
+
+/* ── Small phones (≤ 480px) ─────────────────────────────────────────────── */
+@media (max-width: 480px) {
+    .landing-hero h1 { font-size: 20px; }
+    .landing-hero p  { font-size: 13px; }
+    .features-grid   { grid-template-columns: 1fr; }
+
+    .login-box { padding: 24px 16px; }
+    .login-logo h1 { font-size: 20px; }
+
+    .header h1 { font-size: 14px; }
+
+    .btn { padding: 9px 14px; font-size: 13px; }
+    .btn-sm { padding: 5px 10px; font-size: 11px; }
+
+    .metric-value { font-size: 20px; }
+
+    /* Stack section title + action button vertically */
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    /* Modals full-screen on tiny phones */
+    .modal { align-items: flex-end; }
+    .modal-content {
+        width: 100%;
+        border-radius: 12px 12px 0 0;
+        max-height: 85vh;
     }
 }
 
