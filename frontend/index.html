@@ -31,7 +31,7 @@
             <button class="btn btn-secondary" onclick="goToLogin()">
                 <i class="fas fa-sign-in-alt"></i> Login to System
             </button>
-            <button id="pwa-install-btn" class="btn btn-install" style="display:none;" onclick="installPWA()">
+            <button id="pwa-install-btn" class="btn btn-install" onclick="installPWA()">
                 <i class="fas fa-download"></i> Install App
             </button>
         </div>
@@ -592,44 +592,49 @@ function _hideInstallBtn() {
   if (btn) btn.style.display = 'none';
 }
 
-// 1. Standard path: Chrome on Android, PC (Edge/Chrome) — captures the prompt
+// On load: hide button ONLY if already running as an installed PWA.
+// Otherwise leave it visible so users can always see and tap it.
+document.addEventListener('DOMContentLoaded', () => {
+  const isStandalone =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+  if (isStandalone) {
+    _hideInstallBtn();
+  }
+});
+
+// Capture the native install prompt when the browser offers one
+// (Chrome/Edge on Android and Desktop). Keeps the button working with
+// the native dialog instead of the address-bar icon.
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   _deferredInstallPrompt = e;
-  _showInstallBtn();
+  _showInstallBtn(); // ensure visible (in case it was hidden)
 });
 
-// 2. If already running as installed PWA → hide button entirely
-if (window.matchMedia('(display-mode: standalone)').matches ||
-    window.navigator.standalone === true) {
-  _hideInstallBtn();
-}
-
-// 3. Button click handler
+// Button click handler — works on all platforms
 window.installPWA = async function () {
   const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
 
-  // iOS Safari: no beforeinstallprompt — show a manual guide instead
-  if (isIos && !_deferredInstallPrompt) {
-    alert("To install on iOS:\n\n1. Tap the Share button (square with arrow) at the bottom of Safari.\n2. Scroll down and tap 'Add to Home Screen'.\n3. Tap 'Add'.");
+  if (isIos) {
+    // iOS Safari has no beforeinstallprompt — guide the user manually
+    alert('To install on iOS:\n\n1. Tap the Share button (\u{1F4E4}) at the bottom of Safari.\n2. Scroll down and tap "Add to Home Screen".\n3. Tap "Add".');
     return;
   }
 
-  if (!_deferredInstallPrompt) {
-    // Fallback: browser already showing install UI in address bar (desktop)
-    alert("Look for the install icon (⊕) in your browser's address bar to install this app.");
-    return;
+  if (_deferredInstallPrompt) {
+    // Best path: trigger the native install dialog
+    _deferredInstallPrompt.prompt();
+    const { outcome } = await _deferredInstallPrompt.userChoice;
+    if (outcome === 'accepted') _hideInstallBtn();
+    _deferredInstallPrompt = null;
+  } else {
+    // Fallback: browser shows the install icon in the address bar
+    alert('To install:\n\nLook for the install icon (\u2295) in your browser\'s address bar and click it.');
   }
-
-  _deferredInstallPrompt.prompt();
-  const { outcome } = await _deferredInstallPrompt.userChoice;
-  if (outcome === 'accepted') {
-    _hideInstallBtn();
-  }
-  _deferredInstallPrompt = null;
 };
 
-// Hide button once app is installed
+// Hide button once the app is successfully installed
 window.addEventListener('appinstalled', () => {
   _hideInstallBtn();
   _deferredInstallPrompt = null;
